@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import os
 import math
 import itertools
+import datetime
 
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import MinMaxScaler
@@ -344,17 +345,16 @@ plt.show()
 # axes = axes.ravel()
 
 # for i, lag in enumerate(lags):
-#     #Aplica os valores de lag as observações
+#     # lags
 #     x = df_group_m[['Amazônia']].values[:-lag]
 #     y = df_group_m['Amazônia'].values[lag:]
 
-#     #Faz o fit, input/output
 #     model.fit(x, y)
-#     #Realiza a previsão, output com relação aos inputs
+
 #     pred = model.predict(x)
 #     print("I", i, model.coef_)
 
-#     #Calcula a norma dos resíduos
+#     # Residual Norm
 #     residuos = np.sqrt(np.sum((y - pred) ** 2))
 #     residual_norm.append(residuos)
 
@@ -486,17 +486,16 @@ plt.show()
 # axes = axes.ravel()
 
 # for i, lag in enumerate(lags):
-#     #Aplica os valores de lag as observações
+#     # lags
 #     x = df_group_m[['Cerrado']].values[:-lag]
 #     y = df_group_m['Cerrado'].values[lag:]
 
-#     #Faz o fit, input/output
 #     model.fit(x, y)
-#     #Realiza a previsão, output com relação aos inputs
+
 #     pred = model.predict(x)
 #     print("I", i, model.coef_)
 
-#     #Calcula a norma dos resíduos
+#     # Residual Norm
 #     residuos = np.sqrt(np.sum((y - pred) ** 2))
 #     residual_norm.append(residuos)
 
@@ -634,75 +633,171 @@ class SlidingWindow:
 
 # %%
 
+# Configuring directory to save metrics and predictions
+
+timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
+
+# Base output
+base_dir = "output"
+metrics_dir = os.path.join(base_dir, "metrics")
+values_dir = os.path.join(base_dir, "values")
+
+# Create directories
+os.makedirs(metrics_dir, exist_ok=True)
+os.makedirs(values_dir, exist_ok=True)
+
+metrics_file_arima = os.path.join(metrics_dir, f"metrics_arima{timestamp}.csv")
+metrics_file_xgb = os.path.join(metrics_dir, f"metrics_xgb{timestamp}.csv")
+
+values_file_arima = os.path.join(values_dir, f"values_arima{timestamp}.csv")
+values_file_xgb = os.path.join(values_dir, f"values_xgb{timestamp}.csv")
+
+with open(metrics_file_arima, "w") as f:
+    f.write("model,order,rmse,rmse_std,mae,mae_std,split\n")
+
+with open(metrics_file_xgb, "w") as f:
+    f.write("model,n_est,max_d,max_l,rmse,rmse_std,mae,mae_std,split\n")
+
+with open(values_file_arima, "w") as f:
+    f.write("model,ytrue,yhat\n")
+
+with open(values_file_xgb, "w") as f:
+    f.write("model,ytrue,yhat\n")
+
+# %%
+
 # ----- ARIMA -----
 
-# --------------------- ARIMA SW3Y VALIDATION (AMAZÔNIA) ---------------------
+# # --------------------- ARIMA SW3Y VALIDATION (AMAZÔNIA) ---------------------
 
-p_values = [2, 5]
-d_values = [0, 1]
-q_values = [41]
+# p_values = [2, 5]
+# d_values = [0, 1]
+# q_values = [41]
 
-param_combinations = list(itertools.product(p_values, d_values, q_values))
+# param_combinations = list(itertools.product(p_values, d_values, q_values))
 
-SW3Y_val = SlidingWindow(
-    n_samples=len(df_group["Amazônia"].loc["2020-01-01":"2023-12-31"]),
-    trainw=len(df_group["Amazônia"].loc["2020-01-01":"2022-12-31"]),
-    testw=7,
-)
+# SW3Y_val = SlidingWindow(
+#     n_samples=len(df_group["Amazônia"].loc["2020-01-01":"2023-12-31"]),
+#     trainw=len(df_group["Amazônia"].loc["2020-01-01":"2022-12-31"]),
+#     testw=7,
+# )
 
-best_rmse_SW3Y_val = float("inf")
-best_mae_SW3Y_val = None
-best_params_SW3Y = None
+# best_rmse_SW3Y_val = float("inf")
+# best_mae_SW3Y_val = None
+# best_params_SW3Y = None
 
-for p, d, q in param_combinations:
-    arima_order = (p, d, q)
+# for p, d, q in param_combinations:
+#     arima_order = (p, d, q)
 
-    resultsSW3Y_val = dict(ytrue=[], yhat=[])
-    scoringSW3Y_val = dict(rmse=[], mae=[])
+#     resultsSW3Y_val = dict(ytrue=[], yhat=[])
+#     scoringSW3Y_val = dict(rmse=[], mae=[])
 
-    print("ordem atual", arima_order)
+#     print("ordem atual", arima_order)
 
-    # Loop para Sliding Window
-    for i, (trainidxs, testidxs) in enumerate(SW3Y_val.split(df_group[["Amazônia"]])):
-        y = train2_transf[trainidxs]
+#     # Loop para Sliding Window
+#     for i, (trainidxs, testidxs) in enumerate(SW3Y_val.split(df_group[["Amazônia"]])):
+#         y = train2_transf[trainidxs]
 
-        # Dados de validação
-        y_t = train2_transf[testidxs]
+#         # Dados de validação
+#         y_t = train2_transf[testidxs]
 
-        arima_model = sm.tsa.ARIMA(y, order=arima_order)
-        arima_model.initialize_approximate_diffuse()
-        arima_fit = arima_model.fit()
+#         arima_model = sm.tsa.ARIMA(y, order=arima_order)
+#         arima_model.initialize_approximate_diffuse()
+#         arima_fit = arima_model.fit()
 
-        # Previsões para os dados de validação
-        predictions = arima_fit.forecast(steps=len(y_t))
+#         # Previsões para os dados de validação
+#         predictions = arima_fit.forecast(steps=len(y_t))
 
-        yhat = scaler.inverse_transform(predictions.reshape(-1, 1))
-        ytrue = scaler.inverse_transform(y_t)
+#         yhat = scaler.inverse_transform(predictions.reshape(-1, 1))
+#         ytrue = scaler.inverse_transform(y_t)
 
-        if len(ytrue) > 0:
-            rmse = math.sqrt(mean_squared_error(ytrue, yhat))
-            mae = mean_absolute_error(ytrue, yhat)
+#         if len(ytrue) > 0:
+#             rmse = math.sqrt(mean_squared_error(ytrue, yhat))
+#             mae = mean_absolute_error(ytrue, yhat)
 
-            scoringSW3Y_val["rmse"].append(rmse)
-            scoringSW3Y_val["mae"].append(mae)
+#             scoringSW3Y_val["rmse"].append(rmse)
+#             scoringSW3Y_val["mae"].append(mae)
 
-    rmse_mean = round(np.mean(scoringSW3Y_val["rmse"]), 2)
-    mae_mean = round(np.mean(scoringSW3Y_val["mae"]), 2)
+#     rmse_mean = round(np.mean(scoringSW3Y_val["rmse"]), 2)
+#     mae_mean = round(np.mean(scoringSW3Y_val["mae"]), 2)
 
-    if rmse_mean < best_rmse_SW3Y_val:
-        best_rmse_SW3Y_val = rmse_mean
-        best_mae_SW3Y_val = mae_mean
-        best_params_SW3Y = arima_order
+#     if rmse_mean < best_rmse_SW3Y_val:
+#         best_rmse_SW3Y_val = rmse_mean
+#         best_mae_SW3Y_val = mae_mean
+#         best_params_SW3Y = arima_order
 
-# with open(metrics_file, "a") as f:
+# # with open(metrics_file, "a") as f:
+# #     f.write(
+# #         f"ARIMA-SW2Y,{best_params_SW3Y},{best_rmse_SW3Y_val},{best_mae_SW3Y_val},{best_mape_SW3Y_val},{best_r2_SW3Y_val},val\n"
+# #     )
+
+# print("Best_Params_SW3Y_Val", best_params_SW3Y)
+# print("Best_RMSE_SW3Y_Val : ", best_rmse_SW3Y_val)
+# print("Best_MAE_SW3Y_Val:", best_mae_SW3Y_val)
+
+
+# # -------------------------------------------- ARIMA SW3Y TEST (AMAZÔNIA) ------------------------------------------------
+
+# SW3Y_test = SlidingWindow(
+#     n_samples=len(df_group["Amazônia"].loc["2021-01-01":"2024-12-31"]),
+#     trainw=len(df_group["Amazônia"].loc["2021-01-01":"2023-12-31"]),
+#     testw=7,
+# )
+
+# resultsSW3Y_test = dict(ytrue=[], yhat=[])
+# scoringSW3Y = dict(rmse=[], mae=[])
+
+# print("Parametros atuais para teste: ", best_params_SW3Y)
+
+# for i, (trainidxs, testidxs) in enumerate(SW3Y_test.split(test)):
+#     y = test_transf[trainidxs]
+#     print(trainidxs)
+
+#     y_t = test_transf[testidxs]
+#     print(testidxs)
+
+#     arima_model = sm.tsa.ARIMA(y, order=best_params_SW3Y)
+#     arima_fit = arima_model.fit()
+
+#     # Previsões para os dados de teste
+#     predictions = arima_fit.forecast(steps=len(y_t))
+
+#     yhat = scaler.inverse_transform(predictions.reshape(-1, 1))
+#     ytrue = scaler.inverse_transform(y_t)
+
+#     resultsSW3Y_test["ytrue"].append(ytrue)
+#     resultsSW3Y_test["yhat"].append(yhat)
+
+#     if len(ytrue) > 0:
+#         rmse = math.sqrt(mean_squared_error(ytrue, yhat))
+#         mae = mean_absolute_error(ytrue, yhat)
+
+#         scoringSW3Y["rmse"].append(rmse)
+#         scoringSW3Y["mae"].append(mae)
+
+# rmse_mean = round(np.mean(scoringSW3Y["rmse"]), 2)
+# rmse_std = round(np.std(scoringSW3Y["rmse"]), 2)
+# mae_mean = round(np.mean(scoringSW3Y["mae"]), 2)
+# mae_std = round(np.std(scoringSW3Y["mae"]), 2)
+
+# # Save metrics into csv
+# with open(metrics_file_arima, "a") as f:
 #     f.write(
-#         f"ARIMA-SW2Y,{best_params_SW3Y},{best_rmse_SW3Y_val},{best_mae_SW3Y_val},{best_mape_SW3Y_val},{best_r2_SW3Y_val},val\n"
+#         f"ARIMA-SW3Y,{best_params_SW3Y},{rmse_mean},{rmse_std},{mae_mean},{mae_std},test\n"
 #     )
 
-print("Best_Params_SW3Y_Val", best_params_SW3Y)
-print("Best_RMSE_SW3Y_Val : ", best_rmse_SW3Y_val)
-print("Best_MAE_SW3Y_Val:", best_mae_SW3Y_val)
+# # Save true and preds into csv
+# with open(values_file_arima, "a") as f:
+#     for ytrue, yhat in zip(resultsSW3Y_test["ytrue"], resultsSW3Y_test["yhat"]):
+#         for true, pred in zip(ytrue, yhat):
+#             f.write(f"ARIMA-SW2Y,{true},{pred}\n")
 
+# print("-" * 20)
+
+# print("RMSE_SW3Y_Test:", rmse_mean)
+# print("RMSE_std_SW3Y_Test:", rmse_std)
+# print("MAE_SW3Y_Test:", mae_mean)
+# print("MAE_std_SW3Y_Test:", mae_std)
 
 # -------------------------------------------- ARIMA SW3Y TEST (AMAZÔNIA) ------------------------------------------------
 
@@ -715,7 +810,7 @@ SW3Y_test = SlidingWindow(
 resultsSW3Y_test = dict(ytrue=[], yhat=[])
 scoringSW3Y = dict(rmse=[], mae=[])
 
-print("Parametros atuais para teste: ", best_params_SW3Y)
+print("Parametros atuais para teste: ", (5, 1, 41))
 
 for i, (trainidxs, testidxs) in enumerate(SW3Y_test.split(test)):
     y = test_transf[trainidxs]
@@ -724,7 +819,7 @@ for i, (trainidxs, testidxs) in enumerate(SW3Y_test.split(test)):
     y_t = test_transf[testidxs]
     print(testidxs)
 
-    arima_model = sm.tsa.ARIMA(y, order=best_params_SW3Y)
+    arima_model = sm.tsa.ARIMA(y, order=(5, 1, 41))
     arima_fit = arima_model.fit()
 
     # Previsões para os dados de teste
@@ -748,24 +843,24 @@ rmse_std = round(np.std(scoringSW3Y["rmse"]), 2)
 mae_mean = round(np.mean(scoringSW3Y["mae"]), 2)
 mae_std = round(np.std(scoringSW3Y["mae"]), 2)
 
-# with open(metrics_file, "a") as f:
-#     f.write(
-#         f"ARIMA-SW2Y,{best_params_SW3Y},{rmse_mean},{mae_mean},{mape_mean},{r2_mean},test\n"
-#     )
+# Save metrics into csv
+with open(metrics_file_arima, "a") as f:
+    f.write(
+        f"ARIMA-SW3Y,{(5, 1, 41)},{rmse_mean},{rmse_std},{mae_mean},{mae_std},test\n"
+    )
 
-# # Escrever os valores reais e previstos em arquivo CSV
-# for i in range(len(resultsSW3Y_test["ytrue"])):
-#     ytrue = resultsSW3Y_test["ytrue"][i]
-#     yhat = resultsSW3Y_test["yhat"][i]
-
-#     with open(values_file, "a") as f:
-#         for true, pred in zip(ytrue, yhat):
-#             f.write(f"ARIMA-SW2Y,{true},{pred}\n")
+# Save true and preds into csv
+with open(values_file_arima, "a") as f:
+    for ytrue, yhat in zip(resultsSW3Y_test["ytrue"], resultsSW3Y_test["yhat"]):
+        for true, pred in zip(ytrue, yhat):
+            f.write(f"ARIMA-SW3Y,{true.item()},{pred.item()}\n")
 
 print("-" * 20)
 
 print("RMSE_SW3Y_Test:", rmse_mean)
+print("RMSE_std_SW3Y_Test:", rmse_std)
 print("MAE_SW3Y_Test:", mae_mean)
+print("MAE_std_SW3Y_Test:", mae_std)
 
 # %%
 
