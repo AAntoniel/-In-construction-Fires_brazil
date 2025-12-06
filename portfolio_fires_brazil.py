@@ -15,9 +15,29 @@ import statsmodels.api as sm
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from xgboost import XGBRegressor
 
+
+# %%
+# Function to save figures
+def save_fig(fig_name, fig_dir="output/imgs", dpi=300):
+    os.makedirs(fig_dir, exist_ok=True)
+    file_path = os.path.join(fig_dir, fig_name)
+    plt.savefig(file_path, dpi=dpi, bbox_inches="tight")
+
+
 # %%
 
+timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
 
+# Base output
+base_dir = "output"
+
+img_dir = os.path.join(base_dir, "imgs")
+
+# images directory
+os.makedirs(img_dir, exist_ok=True)
+
+
+# %%
 # ----- READING DATASETS -----
 def read_files(file_name: str):
     df = pd.read_csv(f"fires/{file_name}.csv")
@@ -66,7 +86,9 @@ plt.title("Distribution of Fires by Biomes in Brazil")
 plt.xlabel("Biomes")
 plt.ylabel("Proportion (%)")
 plt.grid(True, zorder=0)
-plt.show()
+plt.tight_layout()
+save_fig("Dist_by_biomes.pdf")
+# plt.show()
 
 # %%
 
@@ -129,7 +151,8 @@ plt.title("Distribution of Fires by Regions in Brazil")
 plt.xlabel("Regions")
 plt.ylabel("Proportion (%)")
 plt.grid(True, zorder=0)
-plt.show()
+save_fig("Dist_by_regions.pdf")
+# plt.show()
 
 # %%
 
@@ -152,7 +175,7 @@ df_group.columns = [
 df_group.head()
 
 plt.figure(figsize=(12, 6))
-plt.plot(df_group["Amazônia"], color="b")
+plt.plot(df_group["Amazônia"])
 # plt.plot(df_group["Caatinga"], color='r')
 plt.plot(df_group["Cerrado"], color="orange")
 # plt.plot(df_group["Mata Atlântica"], color='orange')
@@ -165,7 +188,8 @@ plt.ylabel("Occurrences of fires")
 plt.grid(True)
 # plt.legend(["Amazônia","Caatinga","Cerrado","Mata Atlântica","Pampa","Pantanal"])
 plt.legend(["Amazônia", "Cerrado"])
-plt.show()
+save_fig("TS_by_amaz_cerr_daily.pdf")
+# plt.show()
 
 # %%
 
@@ -200,7 +224,7 @@ fig, axes = plt.subplots(2, figsize=(13, 9), sharex=True)
 #     if r == 2:
 #       axes[r, c].set_xlabel("Year")
 
-axes[0].plot(df_group["Amazônia"], color="b")
+axes[0].plot(df_group["Amazônia"])
 axes[0].set_title("Amazônia")
 axes[0].grid(True)
 axes[0].set_ylabel("Nº Occurrences")
@@ -214,7 +238,8 @@ axes[1].set_ylabel("Nº Occurrences")
 axes[1].set_ylim(0, 3500)
 
 plt.tight_layout()
-plt.show()
+save_fig("Sep_TS_amaz_cerr.pdf")
+# plt.show()
 
 # %%
 # ------ GROUPING AND PLOTTING TIME SERIES BY BIOMES (monthly) ------
@@ -236,9 +261,9 @@ df_group_m.columns = [
 df_group_m.head()
 
 plt.figure(figsize=(15, 7))
-plt.plot(df_group_m["Amazônia"], color="b")
+plt.plot(df_group_m["Amazônia"], linewidth=2)
 # plt.plot(df_group_m["Caatinga"], color='r')
-plt.plot(df_group_m["Cerrado"], color="orange")
+plt.plot(df_group_m["Cerrado"], color="orange", linewidth=2)
 # plt.plot(df_group_m["Mata Atlântica"], color='orange')
 # plt.plot(df_group_m["Pampa"], color='black')
 # plt.plot(df_group_m["Pantanal"], color='pink')
@@ -247,8 +272,12 @@ plt.title("Time series of occurrences of fires for Amazônia and Cerrado (Monthl
 plt.xlabel("Time")
 plt.ylabel("Occurrences of fires")
 plt.grid(True)
-plt.legend(["Amazônia", "Caatinga", "Cerrado", "Mata Atlântica", "Pampa", "Pantanal"])
-plt.show()
+# plt.legend(["Amazônia", "Caatinga", "Cerrado", "Mata Atlântica", "Pampa", "Pantanal"])
+plt.legend(["Amazônia", "Cerrado"])
+save_fig("TS_by_amaz_cerr_monthly.pdf")
+# plt.show()
+
+# %%
 
 # fig, axes = plt.subplots(3, 2, figsize=(13, 9), sharex=True)
 fig, axes = plt.subplots(2, figsize=(13, 9), sharex=True)
@@ -269,13 +298,13 @@ fig, axes = plt.subplots(2, figsize=(13, 9), sharex=True)
 #     if r == 2:
 #       axes[r, c].set_xlabel("Year")
 
-axes[0].plot(df_group_m["Amazônia"], color="b")
+axes[0].plot(df_group_m["Amazônia"], linewidth=2)
 axes[0].set_title("Amazônia")
 axes[0].grid(True)
 axes[0].set_ylabel("Nº Occurrences")
 axes[0].set_ylim(0, 45000)
 
-axes[1].plot(df_group_m["Cerrado"], color="orange")
+axes[1].plot(df_group_m["Cerrado"], color="orange", linewidth=2)
 axes[1].set_title("Cerrado")
 axes[1].grid(True)
 axes[1].set_xlabel("Year")
@@ -283,7 +312,8 @@ axes[1].set_ylabel("Nº Occurrences")
 axes[1].set_ylim(0, 45000)
 
 plt.tight_layout()
-plt.show()
+save_fig("Sep_TS_amaz_cerr_monthly.pdf")
+# plt.show()
 
 # %%
 
@@ -334,7 +364,8 @@ for i, lag in enumerate(lags):
     axes[i].grid(True, zorder=0)
 
 plt.tight_layout()
-plt.show()
+save_fig("Res_norm_amaz.pdf")
+# plt.show()
 
 # %%
 
@@ -398,7 +429,10 @@ for i in range(4):
     axes[i].set_xlim(x_min, x_max)
 
 plt.tight_layout()
-plt.show()
+save_fig("Amaz_ts_dec.pdf")
+# plt.show()
+
+# %%
 
 # Plot ACF e PACF Amazônia (Daily)
 
@@ -417,7 +451,8 @@ axes[1].set_xlabel("Lags")
 axes[1].set_ylabel("Correlation")
 
 plt.tight_layout()
-plt.show()
+save_fig("Amaz_ACF_PACF.pdf")
+# plt.show()
 
 # Plot ACF e PACF Amazônia (Monthly)
 
@@ -475,7 +510,8 @@ for i, lag in enumerate(lags):
     axes[i].grid(True, zorder=0)
 
 plt.tight_layout()
-plt.show()
+save_fig("Res_norm_cerr.pdf")
+# plt.show()
 
 # %%
 
@@ -539,7 +575,10 @@ for i in range(4):
     axes[i].set_xlim(x_min, x_max)
 
 plt.tight_layout()
-plt.show()
+save_fig("Cerr_ts_dec.pdf")
+# plt.show()
+
+# %%
 
 # Plot ACF e PACF Cerrado (Daily)
 
@@ -558,7 +597,8 @@ axes[1].set_xlabel("Lags")
 axes[1].set_ylabel("Correlation")
 
 plt.tight_layout()
-plt.show()
+save_fig("Cerr_ACF_PACF.pdf")
+# plt.show()
 
 # Plot ACF e PACF Cerrado (Monthly)
 
@@ -635,10 +675,7 @@ class SlidingWindow:
 
 # Configuring directory to save metrics and predictions
 
-timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
-
-# Base output
-base_dir = "output"
+# Models outputs
 metrics_dir = os.path.join(base_dir, "metrics")
 values_dir = os.path.join(base_dir, "values")
 
@@ -726,11 +763,6 @@ for p, d, q in param_combinations:
         best_mae_SW3Y_val = mae_mean
         best_params_SW3Y = arima_order
 
-# with open(metrics_file, "a") as f:
-#     f.write(
-#         f"ARIMA-SW2Y,{best_params_SW3Y},{best_rmse_SW3Y_val},{best_mae_SW3Y_val},{best_mape_SW3Y_val},{best_r2_SW3Y_val},val\n"
-#     )
-
 print("Best_Params_SW3Y_Val", best_params_SW3Y)
 print("Best_RMSE_SW3Y_Val : ", best_rmse_SW3Y_val)
 print("Best_MAE_SW3Y_Val:", best_mae_SW3Y_val)
@@ -790,7 +822,7 @@ with open(metrics_file_arima, "a") as f:
 with open(values_file_arima, "a") as f:
     for ytrue, yhat in zip(resultsSW3Y_test["ytrue"], resultsSW3Y_test["yhat"]):
         for true, pred in zip(ytrue, yhat):
-            f.write(f"ARIMA-SW2Y,{true},{pred}\n")
+            f.write(f"ARIMA-SW3Y,{true},{pred}\n")
 
 print("-" * 20)
 
@@ -884,7 +916,7 @@ param_combinations = list(itertools.product(n_estimators, max_depth, max_leaves)
 
 # %%
 
-# --------------------- ARIMA SW3Y VALIDATION (AMAZÔNIA) ---------------------
+# --------------------- XGB SW3Y VALIDATION (AMAZÔNIA) ---------------------
 
 SW3Y_val = SlidingWindow(
     n_samples=len(df_group["Amazônia"].loc["2020-01-01":"2023-12-31"]),
@@ -952,7 +984,7 @@ print("Best_max_l_SW3Y", best_max_l_SW3Y)
 print("Best_RMSE_SW3Y_Val : ", best_rmse_SW3Y_val)
 print("Best_MAE_SW3Y_Val:", best_mae_SW3Y_val)
 
-# --------------------- ARIMA SW3Y TEST (AMAZÔNIA) ---------------------
+# --------------------- XGB SW3Y TEST (AMAZÔNIA) ---------------------
 
 SW3Y_test = SlidingWindow(
     n_samples=len(df_group["Amazônia"].loc["2021-01-01":"2024-12-31"]),
@@ -1003,6 +1035,18 @@ rmse_mean = round(np.mean(scoringSW3Y_test["rmse"]), 2)
 rmse_std = round(np.std(scoringSW3Y_test["rmse"]), 2)
 mae_mean = round(np.mean(scoringSW3Y_test["mae"]), 2)
 mae_std = round(np.std(scoringSW3Y_test["mae"]), 2)
+
+# Save metrics into csv
+with open(metrics_file_xgb, "a") as f:
+    f.write(
+        f"XGB-SW3Y,{best_n_estimator_SW3Y},{best_max_d_SW3Y},{best_max_l_SW3Y},{rmse_mean},{rmse_std},{mae_mean},{mae_std},test\n"
+    )
+
+# Save true and preds into csv
+with open(values_file_xgb, "a") as f:
+    for ytrue, yhat in zip(resultsSW3Y_test["ytrue"], resultsSW3Y_test["yhat"]):
+        for true, pred in zip(ytrue, yhat):
+            f.write(f"XGB-SW3Y,{true.item()},{pred.item()}\n")
 
 print("-" * 20)
 print("RMSE_SW3Y_Test:", rmse_mean)
