@@ -87,7 +87,7 @@ plt.xlabel("Biomes")
 plt.ylabel("Proportion (%)")
 plt.grid(True, zorder=0)
 plt.tight_layout()
-save_fig("Dist_by_biomes.pdf")
+save_fig("Dist_by_biomes.png")
 # plt.show()
 
 # %%
@@ -151,7 +151,7 @@ plt.title("Distribution of Fires by Regions in Brazil")
 plt.xlabel("Regions")
 plt.ylabel("Proportion (%)")
 plt.grid(True, zorder=0)
-save_fig("Dist_by_regions.pdf")
+save_fig("Dist_by_regions.png")
 # plt.show()
 
 # %%
@@ -188,7 +188,7 @@ plt.ylabel("Occurrences of fires")
 plt.grid(True)
 # plt.legend(["Amazônia","Caatinga","Cerrado","Mata Atlântica","Pampa","Pantanal"])
 plt.legend(["Amazônia", "Cerrado"])
-save_fig("TS_by_amaz_cerr_daily.pdf")
+save_fig("TS_by_amaz_cerr_daily.png")
 # plt.show()
 
 # %%
@@ -238,7 +238,7 @@ axes[1].set_ylabel("Nº Occurrences")
 axes[1].set_ylim(0, 3500)
 
 plt.tight_layout()
-save_fig("Sep_TS_amaz_cerr.pdf")
+save_fig("Sep_TS_amaz_cerr.png")
 # plt.show()
 
 # %%
@@ -274,7 +274,7 @@ plt.ylabel("Occurrences of fires")
 plt.grid(True)
 # plt.legend(["Amazônia", "Caatinga", "Cerrado", "Mata Atlântica", "Pampa", "Pantanal"])
 plt.legend(["Amazônia", "Cerrado"])
-save_fig("TS_by_amaz_cerr_monthly.pdf")
+save_fig("TS_by_amaz_cerr_monthly.png")
 # plt.show()
 
 # %%
@@ -312,7 +312,7 @@ axes[1].set_ylabel("Nº Occurrences")
 axes[1].set_ylim(0, 45000)
 
 plt.tight_layout()
-save_fig("Sep_TS_amaz_cerr_monthly.pdf")
+save_fig("Sep_TS_amaz_cerr_monthly.png")
 # plt.show()
 
 # %%
@@ -364,7 +364,7 @@ for i, lag in enumerate(lags):
     axes[i].grid(True, zorder=0)
 
 plt.tight_layout()
-save_fig("Res_norm_amaz.pdf")
+save_fig("Res_norm_amaz.png")
 # plt.show()
 
 # %%
@@ -429,7 +429,7 @@ for i in range(4):
     axes[i].set_xlim(x_min, x_max)
 
 plt.tight_layout()
-save_fig("Amaz_ts_dec.pdf")
+save_fig("Amaz_ts_dec.png")
 # plt.show()
 
 # %%
@@ -451,7 +451,7 @@ axes[1].set_xlabel("Lags")
 axes[1].set_ylabel("Correlation")
 
 plt.tight_layout()
-save_fig("Amaz_ACF_PACF.pdf")
+save_fig("Amaz_ACF_PACF.png")
 # plt.show()
 
 # Plot ACF e PACF Amazônia (Monthly)
@@ -510,7 +510,7 @@ for i, lag in enumerate(lags):
     axes[i].grid(True, zorder=0)
 
 plt.tight_layout()
-save_fig("Res_norm_cerr.pdf")
+save_fig("Res_norm_cerr.png")
 # plt.show()
 
 # %%
@@ -575,7 +575,7 @@ for i in range(4):
     axes[i].set_xlim(x_min, x_max)
 
 plt.tight_layout()
-save_fig("Cerr_ts_dec.pdf")
+save_fig("Cerr_ts_dec.png")
 # plt.show()
 
 # %%
@@ -597,7 +597,7 @@ axes[1].set_xlabel("Lags")
 axes[1].set_ylabel("Correlation")
 
 plt.tight_layout()
-save_fig("Cerr_ACF_PACF.pdf")
+save_fig("Cerr_ACF_PACF.png")
 # plt.show()
 
 # Plot ACF e PACF Cerrado (Monthly)
